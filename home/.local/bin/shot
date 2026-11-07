@@ -1,0 +1,9 @@
+#!/usr/bin/env bash
+mode="${1:-area}"
+out="${2:-$HOME/Pictures/Screenshots/$(date +%F_%H-%M-%S).png}"
+mkdir -p "$(dirname "$out")"
+if [ "$mode" = area ]; then
+  grim -g "$(slurp)" - | tee "$out" | wl-copy --type image/png
+else
+  grim "$out"
+fi

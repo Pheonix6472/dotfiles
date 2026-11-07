@@ -1,0 +1,82 @@
+@import "colors.rasi"
+
+* {
+    font: "JetBrainsMono Nerd Font 12";
+    bg: @surface;
+    bg-alt: @surface-container;
+    fg: @on-surface;
+    fg-dim: @on-surface-variant;
+    accent: @primary;
+    on-accent: @on-primary;
+    background-color: transparent;
+    text-color: @fg;
+    margin: 0;
+    padding: 0;
+    spacing: 0;
+}
+
+window {
+    location: center;
+    anchor: center;
+    width: 560px;
+    background-color: @bg;
+    border-radius: 22px;
+}
+
+mainbox {
+    padding: 18px;
+    spacing: 14px;
+    children: [inputbar, listview];
+}
+
+inputbar {
+    background-color: @bg-alt;
+    border-radius: 14px;
+    children: [prompt, entry];
+}
+
+prompt {
+    font: "JetBrainsMono Nerd Font 15";
+    padding: 14px 20px;
+    background-color: @accent;
+    text-color: @on-accent;
+    border-radius: 14px;
+}
+
+entry {
+    padding: 14px 16px;
+    placeholder-color: @fg-dim;
+    vertical-align: 0.5;
+}
+
+listview {
+    lines: 8;
+    columns: 1;
+    fixed-height: false;
+    scrollbar: false;
+    spacing: 6px;
+}
+
+element {
+    padding: 12px 14px;
+    spacing: 12px;
+    border-radius: 12px;
+}
+
+element normal.normal { background-color: transparent; }
+
+element selected.normal {
+    background-color: @accent;
+    text-color: @on-accent;
+}
+
+element-icon {
+    size: 26px;
+    background-color: transparent;
+}
+
+element-text {
+    vertical-align: 0.5;
+    background-color: transparent;
+    text-color: inherit;
+}

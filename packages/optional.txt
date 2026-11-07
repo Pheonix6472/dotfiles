@@ -1,0 +1,6 @@
+# used only by optional menu entries
+wev
+ufw
+nethogs
+iftop
+iotop

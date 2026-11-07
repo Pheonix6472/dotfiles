@@ -1,0 +1,80 @@
+@import "colors.rasi"
+
+* {
+    font: "JetBrainsMono Nerd Font 28";
+    bg: @surface;
+    bg-alt: @surface-container;
+    fg: @on-surface;
+    fg-dim: @on-surface-variant;
+    accent: @primary;
+    on-accent: @on-primary;
+    background-color: transparent;
+    text-color: @fg;
+    margin: 0;
+    padding: 0;
+    spacing: 0;
+}
+
+window {
+    location: center;
+    anchor: center;
+    width: 700px;
+    background-color: @bg;
+    border-radius: 26px;
+}
+
+mainbox {
+    padding: 24px;
+    spacing: 18px;
+    children: [inputbar, message, listview];
+}
+
+inputbar {
+    children: [prompt];
+}
+
+prompt {
+    font: "JetBrainsMono Nerd Font 13";
+    padding: 14px 20px;
+    background-color: @accent;
+    text-color: @on-accent;
+    border-radius: 14px;
+}
+
+message {
+    padding: 14px 20px;
+    background-color: @bg-alt;
+    border-radius: 14px;
+}
+
+textbox {
+    font: "JetBrainsMono Nerd Font 12";
+    text-color: @fg-dim;
+    horizontal-align: 0.5;
+}
+
+listview {
+    columns: 5;
+    lines: 1;
+    spacing: 14px;
+    fixed-columns: true;
+    scrollbar: false;
+}
+
+element {
+    padding: 30px 0px;
+    border-radius: 18px;
+    background-color: @bg-alt;
+}
+
+element selected.normal {
+    background-color: @accent;
+    text-color: @on-accent;
+}
+
+element-text {
+    background-color: transparent;
+    text-color: inherit;
+    horizontal-align: 0.5;
+    vertical-align: 0.5;
+}

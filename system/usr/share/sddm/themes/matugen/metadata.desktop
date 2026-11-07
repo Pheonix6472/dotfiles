@@ -1,0 +1,11 @@
+[SddmGreeterTheme]
+Name=Matugen
+Description=Material You SDDM theme driven by matugen
+Author=local
+Version=1.0
+Type=sddm-theme
+MainScript=Main.qml
+ConfigFile=theme.conf
+Theme-Id=matugen
+Theme-API=2.0
+QtVersion=6

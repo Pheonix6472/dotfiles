@@ -1,0 +1,14 @@
+[Unit]
+Description=Lightweight resource statistics logger
+
+[Service]
+ExecStart=%h/.local/bin/sysstat --daemon
+Nice=19
+CPUSchedulingPolicy=idle
+IOSchedulingClass=idle
+MemoryMax=150M
+Restart=on-failure
+RestartSec=10
+
+[Install]
+WantedBy=default.target

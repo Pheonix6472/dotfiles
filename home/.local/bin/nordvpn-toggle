@@ -1,0 +1,7 @@
+#!/usr/bin/env bash
+
+if nordvpn status | grep -q 'Status: Connected'; then
+    nordvpn disconnect
+else
+    nordvpn connect estonia
+fi

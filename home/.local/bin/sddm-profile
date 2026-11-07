@@ -1,0 +1,201 @@
+#!/usr/bin/env fish
+
+# sddm-profile: TUI to edit SDDM login profiles (icon, display name, password)
+# Usage: sddm-profile                              interactive menu
+#        sddm-profile USER IMAGE [center|north]    set an icon directly
+
+set -g theme_dir /usr/share/sddm/themes/matugen
+set -q SDDM_THEME_DIR; and set -g theme_dir $SDDM_THEME_DIR
+set -g avatar_dir "$theme_dir/Assets/avatars"
+
+for dep in fzf magick getent sudo
+    if not command -q $dep
+        echo "ERROR: $dep is required but not installed."
+        exit 1
+    end
+end
+
+function priv
+    if test (id -u) -eq 0
+        $argv
+    else
+        sudo $argv
+    end
+end
+
+function ok_msg
+    set_color green
+    echo "OK: $argv"
+    set_color normal
+end
+
+function err_msg
+    set_color red
+    echo "ERROR: $argv"
+    set_color normal
+end
+
+function list_users
+    for line in (getent passwd)
+        set -l f (string split : -- "$line")
+        if test $f[3] -ge 1000; and test $f[3] -lt 60000
+            if not string match -rq "nologin|false" -- "$f[7]"
+                set -l gecos (string split , -- "$f[5]" | head -n1)
+                echo $f[1]\t$gecos
+            end
+        end
+    end
+end
+
+function best_frame -a file
+    set -l best 0
+    set -l area 0
+    set -l i 0
+    for dim in (magick identify -format "%w %h\n" "$file" 2>/dev/null)
+        set -l d (string split " " -- "$dim")
+        test (count $d) -ge 2; or continue
+        set -l a (math $d[1] \* $d[2])
+        if test $a -gt $area
+            set area $a
+            set best $i
+        end
+        set i (math $i + 1)
+    end
+    echo $best
+end
+
+function apply_icon -a user file crop
+    test -n "$crop"; or set crop center
+
+    if not id $user >/dev/null 2>&1
+        err_msg "Unknown user: $user"
+        return 1
+    end
+    if not test -f "$file"
+        err_msg "File not found: $file"
+        return 1
+    end
+
+    set file (realpath -- "$file")
+    set -l frame (best_frame "$file")
+    set -l spec (string join "" -- "$file" "[" $frame "]")
+    set -l tmp (mktemp --suffix=.png)
+
+    if not magick "$spec" -auto-orient -background none -gravity $crop -resize 512x512^ -extent 512x512 png:"$tmp" 2>/dev/null
+        if not magick "$file" -auto-orient -background none -gravity $crop -resize 512x512^ -extent 512x512 png:"$tmp"
+            err_msg "ImageMagick could not convert: $file"
+            rm -f "$tmp"
+            return 1
+        end
+    end
+
+    set -l target "$avatar_dir/$user.png"
+    mkdir -p "$avatar_dir" 2>/dev/null; or priv mkdir -p "$avatar_dir"
+    if test -w "$avatar_dir"
+        install -m 644 "$tmp" "$target"
+    else
+        priv install -m 644 "$tmp" "$target"
+    end
+    if test $status -ne 0
+        err_msg "Could not write $target"
+        rm -f "$tmp"
+        return 1
+    end
+
+    set -l home (getent passwd $user | string split -f6 :)
+    if test -d "$home"
+        priv install -o $user -g (id -gn $user) -m 644 "$tmp" "$home/.face.icon"
+    end
+
+    rm -f "$tmp"
+    ok_msg "Icon updated for $user ($target)"
+end
+
+function set_icon -a user
+    set -l how (printf "%s\n" "Type or paste a path" "Browse Pictures and Downloads" | fzf --reverse --height 40% --border rounded --prompt "icon > " --header "New icon for $user")
+    set -l src
+    switch "$how"
+        case "Type*"
+            read -P "Path to image: " src
+            set -l sq (printf "\x27")
+            set src (string trim -- "$src")
+            set src (string trim -c $sq -- "$src")
+            set src (string trim -c \" -- "$src")
+            set src (string replace -r "^~" "$HOME" -- "$src")
+            set src (string unescape -- "$src")
+        case "Browse*"
+            set src (
+                find "$HOME/Pictures" "$HOME/Downloads" -maxdepth 3 -type f 2>/dev/null |
+                while read -l path
+                    if string match -rq "\.(png|jpe?g|ico|webp|gif|bmp|tiff?|avif|heic|svg)\$" -- "$path"
+                        printf "%s\n" "$path"
+                    end
+                end |
+                fzf --reverse --height 85% --border rounded --prompt "image > " --delimiter "/" --with-nth=-1 --preview "chafa -- {} 2>/dev/null" --preview-window right:50% --bind "ctrl-/:toggle-preview"
+            )
+        case "*"
+            return
+    end
+    test -n "$src"; or return
+
+    set -l crop (printf "%s\n" "center" "north" | fzf --reverse --height 30% --border rounded --prompt "crop > " --header "Crop focus (north keeps faces in portrait photos)")
+    test -n "$crop"; or return
+
+    apply_icon $user "$src" $crop
+end
+
+function set_name -a user
+    set -l cur (getent passwd $user | string split -f5 : | head -n1 | string split , | head -n1)
+    read -P "New display name [$cur]: " new
+    set new (string trim -- "$new")
+    test -n "$new"; or return
+    if string match -q "*:*" -- "$new"
+        err_msg "The name must not contain a colon."
+        return 1
+    end
+    priv usermod -c "$new" $user; and ok_msg "Display name for $user is now: $new"
+end
+
+function set_password -a user
+    priv passwd $user
+end
+
+function edit_user -a user
+    while true
+        set -l pick (printf "%s\n" "Change icon" "Change display name" "Change password" "Back" | fzf --reverse --height 40% --border rounded --prompt "$user > " --header "Edit profile: $user")
+        switch "$pick"
+            case "Change icon"
+                set_icon $user
+            case "Change display name"
+                set_name $user
+            case "Change password"
+                set_password $user
+            case "*"
+                return
+        end
+    end
+end
+
+function pick_user
+    set -l rows
+    for row in (list_users)
+        set -l p (string split \t -- "$row")
+        set -l state "no icon"
+        test -f "$avatar_dir/$p[1].png"; and set state "icon ok"
+        set -a rows (printf "%-14s %-22s %s" "$p[1]" "$p[2]" "$state")
+    end
+    set -l choice (printf "%s\n" $rows | fzf --reverse --height 60% --border rounded --prompt "profile > " --header "Select a profile (Enter: edit, Esc: quit)")
+    test -n "$choice"; or return
+    string split -f1 " " -- "$choice"
+end
+
+if test (count $argv) -ge 2
+    apply_icon $argv[1] $argv[2] $argv[3]
+    exit $status
+end
+
+while true
+    set -l user (pick_user)
+    test -n "$user"; or break
+    edit_user $user
+end

@@ -1,0 +1,47 @@
+[config]
+
+
+[templates.nvim]
+input_path = "~/.config/matugen/templates/nvim-colors.vim"
+output_path = "~/.config/nvim/colors/matugen.vim"
+post_hook = "pkill -USR1 nvim || true"
+
+[templates.zen-userchrome]
+input_path = './templates/zen-userchrome.css'
+output_path = '~/.config/zen/sp3qvr5x.Default (release)/chrome/zen-userChrome.css'
+
+[templates.zen-usercontent]
+input_path = './templates/zen-usercontent.css'
+output_path = '~/.config/zen/sp3qvr5x.Default (release)/chrome/zen-userContent.css'
+
+[templates.rofi]
+input_path = '~/.config/matugen/templates/rofi.rasi'
+output_path = '~/.config/rofi/colors.rasi'
+
+[templates.dunst]
+input_path = "~/.config/matugen/templates/dunstrc"
+output_path = "~/.config/dunst/dunstrc"
+post_hook = "dunstctl reload"
+
+[templates.spotify]
+input_path = '~/.config/matugen/templates/spicetify.ini'
+output_path = '~/.config/spicetify/Themes/Sleek/color.ini'
+post_hook = 'pgrep -x spicetify > /dev/null || spicetify apply -n'
+
+[templates.starship]
+input_path = '~/.config/matugen/templates/starship-colors.toml'
+output_path = '~/.config/starship.toml'
+
+[templates.fastfetch]
+input_path = '~/.config/matugen/templates/fastfetch.jsonc'
+output_path = '~/.config/fastfetch/config.jsonc'
+
+[templates.sddm]
+input_path = "~/.config/matugen/templates/sddm-colors.qml"
+output_path = "/usr/share/sddm/themes/matugen/Colors.qml"
+
+
+
+[templates.swaylock]
+input_path = "~/.config/matugen/templates/swaylock-config"
+output_path = "~/.config/swaylock/config"

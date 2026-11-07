@@ -1,0 +1,7 @@
+#!/usr/bin/env bash
+pgrep -x swaylock >/dev/null && exit 0
+if ! command -v swaylock >/dev/null; then
+  notify-send -u critical "Lock" "swaylock is not installed" 2>/dev/null
+  exit 1
+fi
+exec swaylock -f

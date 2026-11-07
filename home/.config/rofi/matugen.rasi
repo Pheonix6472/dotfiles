@@ -1,0 +1,35 @@
+@import "colors.rasi"
+* {
+    bg: @surface;
+    fg: @on-surface;
+    accent: @primary;
+    background-color: @bg;
+    text-color: @fg;
+}
+window {
+    background-color: @bg;
+    text-color: @fg;
+    border: 2px;
+    border-color: @accent;
+    border-radius: 12px;
+    padding: 20px;
+}
+mainbox {
+    background-color: @bg;
+    children: [inputbar, listview];
+    spacing: 10px;
+}
+inputbar {
+    background-color: @bg;
+    text-color: @fg;
+    padding: 10px;
+}
+element {
+    background-color: @bg;
+    text-color: @fg;
+    padding: 8px;
+}
+element selected {
+    background-color: @accent;
+    text-color: @on-primary;
+}

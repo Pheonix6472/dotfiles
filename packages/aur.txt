@@ -1,0 +1,7 @@
+# install: grep -v "^#" packages/aur.txt | yay -S --needed -
+# spicetify is not packaged, install it separately
+mangowm-git
+mpvpaper
+nordvpn-bin
+spotify
+zen-browser-bin

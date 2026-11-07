@@ -1,0 +1,467 @@
+"$schema" = 'https://starship.rs/config-schema.json'
+
+add_newline = true
+command_timeout = 1000
+scan_timeout = 30
+follow_symlinks = true
+palette = 'colors'
+
+# prompt layout
+format = """
+[╭─](color1)$os$username$hostname$directory$git_branch$git_status$git_state$nodejs$custom_typescript$rust$python$golang$java$fill$cmd_duration$status$time
+[╰─](color1)$character"""
+
+right_format = ""
+
+# matugen palette
+[palettes.colors]
+foreground = '{{ colors.on_surface.dark.hex }}'
+background = '{{ colors.surface.dark.hex }}'
+muted = '{{ colors.outline.dark.hex }}'
+surface = '{{ colors.surface_container.dark.hex }}'
+surface_high = '{{ colors.surface_container_high.dark.hex }}'
+surface_highest = '{{ colors.surface_container_highest.dark.hex }}'
+surface_dim = '{{ colors.surface_dim.dark.hex }}'
+surface_bright = '{{ colors.surface_bright.dark.hex }}'
+surface_variant = '{{ colors.surface_variant.dark.hex }}'
+surface_variant_text = '{{ colors.on_surface_variant.dark.hex }}'
+
+accent = '{{ colors.primary.dark.hex }}'
+accent_text = '{{ colors.on_primary.dark.hex }}'
+accent_container = '{{ colors.primary_container.dark.hex }}'
+accent_container_text = '{{ colors.on_primary_container.dark.hex }}'
+primary_fixed = '{{ colors.primary_fixed.dark.hex }}'
+primary_fixed_dim = '{{ colors.primary_fixed_dim.dark.hex }}'
+on_primary_fixed = '{{ colors.on_primary_fixed.dark.hex }}'
+on_primary_fixed_variant = '{{ colors.on_primary_fixed_variant.dark.hex }}'
+
+secondary = '{{ colors.secondary.dark.hex }}'
+secondary_text = '{{ colors.on_secondary.dark.hex }}'
+secondary_container = '{{ colors.secondary_container.dark.hex }}'
+secondary_container_text = '{{ colors.on_secondary_container.dark.hex }}'
+secondary_fixed = '{{ colors.secondary_fixed.dark.hex }}'
+secondary_fixed_dim = '{{ colors.secondary_fixed_dim.dark.hex }}'
+on_secondary_fixed = '{{ colors.on_secondary_fixed.dark.hex }}'
+on_secondary_fixed_variant = '{{ colors.on_secondary_fixed_variant.dark.hex }}'
+
+tertiary = '{{ colors.tertiary.dark.hex }}'
+tertiary_text = '{{ colors.on_tertiary.dark.hex }}'
+tertiary_container = '{{ colors.tertiary_container.dark.hex }}'
+tertiary_container_text = '{{ colors.on_tertiary_container.dark.hex }}'
+tertiary_fixed = '{{ colors.tertiary_fixed.dark.hex }}'
+tertiary_fixed_dim = '{{ colors.tertiary_fixed_dim.dark.hex }}'
+on_tertiary_fixed = '{{ colors.on_tertiary_fixed.dark.hex }}'
+on_tertiary_fixed_variant = '{{ colors.on_tertiary_fixed_variant.dark.hex }}'
+
+error = '{{ colors.error.dark.hex }}'
+error_text = '{{ colors.on_error.dark.hex }}'
+error_container = '{{ colors.error_container.dark.hex }}'
+error_container_text = '{{ colors.on_error_container.dark.hex }}'
+outline = '{{ colors.outline.dark.hex }}'
+outline_variant = '{{ colors.outline_variant.dark.hex }}'
+
+mustard = '{{ colors.tertiary.dark.hex }}'
+color1 = '{{ colors.primary_fixed_dim.dark.hex }}'
+color2 = '{{ colors.on_primary.dark.hex }}'
+color3 = '{{ colors.on_surface_variant.dark.hex }}'
+color4 = '{{ colors.surface_container.dark.hex }}'
+color5 = '{{ colors.on_primary.dark.hex }}'
+color6 = '{{ colors.surface_dim.dark.hex }}'
+color7 = '{{ colors.surface.dark.hex }}'
+color8 = '{{ colors.primary.dark.hex }}'
+color9 = '{{ colors.tertiary.dark.hex }}'
+
+gold = '{{ colors.tertiary_container.dark.hex }}'
+coral = '{{ colors.primary.dark.hex }}'
+pink = '{{ colors.secondary.dark.hex }}'
+special = '{{ colors.on_secondary_container.dark.hex }}'
+comment = '{{ base16.base04.dark.hex }}'
+delimiter = '{{ base16.base05.dark.hex }}'
+operator = '{{ base16.base06.dark.hex }}'
+
+# prompt symbol
+[character]
+format = '$symbol '
+success_symbol = '[❯](accent bold)'
+error_symbol = '[❯](error bold)'
+vimcmd_symbol = '[❮](secondary bold)'
+vimcmd_replace_one_symbol = '[❮](tertiary bold)'
+vimcmd_replace_symbol = '[❮](tertiary bold)'
+vimcmd_visual_symbol = '[❮](accent_container_text bold)'
+
+# system
+[os]
+disabled = false
+format = '[$symbol ](accent)'
+
+[os.symbols]
+Arch = '󰣇'
+Linux = '󰌽'
+NixOS = ''
+Ubuntu = '󰕈'
+Debian = '󰣚'
+Fedora = '󰣛'
+Manjaro = '󱘊'
+EndeavourOS = ''
+openSUSE = ''
+Pop = ''
+Windows = '󰍲'
+Macos = '󰀵'
+
+[username]
+show_always = true
+format = '[$user]($style)'
+style_user = 'accent'
+style_root = 'error'
+
+[hostname]
+ssh_only = true
+ssh_symbol = '󰣀 '
+format = '[@$hostname]($style) '
+style = 'secondary'
+
+[shell]
+disabled = true
+format = '[$indicator]($style) '
+style = 'muted'
+bash_indicator = 'bash'
+fish_indicator = 'fish'
+zsh_indicator = 'zsh'
+powershell_indicator = 'pwsh'
+unknown_indicator = '?'
+
+[shlvl]
+disabled = true
+threshold = 2
+format = '[↳$shlvl]($style) '
+style = 'muted'
+
+# directory
+[directory]
+format = '[](fg:surface)[󰉋 ](fg:accent_text bg:surface)[$path](fg:foreground bg:surface)[$read_only](fg:error bg:surface)[](fg:surface) '
+style = 'foreground'
+read_only = ' '
+read_only_style = 'error'
+truncation_length = 3
+truncation_symbol = '…/'
+truncate_to_repo = true
+home_symbol = '~'
+use_logical_path = true
+fish_style_pwd_dir_length = 0
+
+[directory.substitutions]
+Documents = '󰈙 '
+Downloads = ' '
+Music = ' '
+Pictures = ' '
+Videos = ' '
+Projects = '󰲋 '
+Desktop = '󰇄 '
+Public = '󰉍 '
+
+# git
+[git_branch]
+format = '[](fg:accent)[ ](fg:accent_text bg:accent)[$branch](fg:foreground bg:accent)[](fg:accent) '
+style = 'foreground'
+truncation_length = 28
+truncation_symbol = '…'
+only_attached = false
+ignore_branches = []
+
+[git_status]
+format = '([$all_status$ahead_behind]($style) )'
+style = 'tertiary'
+conflicted = '=${count}'
+ahead = '⇡${count}'
+behind = '⇣${count}'
+diverged = '⇕${ahead_count}/${behind_count}'
+up_to_date = ''
+untracked = '?${count}'
+stashed = '≡${count}'
+modified = '!${count}'
+staged = '+${count}'
+renamed = '»${count}'
+deleted = '✘${count}'
+typechanged = 'T${count}'
+
+[git_state]
+format = '[\($state( $progress_current/$progress_total)\)]($style) '
+style = 'tertiary'
+rebase = 'rebase'
+merge = 'merge'
+revert = 'revert'
+cherry_pick = 'cherry-pick'
+bisect = 'bisect'
+am = 'am'
+am_or_rebase = 'am/rebase'
+
+[git_commit]
+disabled = true
+commit_hash_length = 7
+format = '[\($hash$tag\)]($style) '
+style = 'muted'
+tag_disabled = false
+tag_symbol = ' 🏷 '
+
+[git_metrics]
+disabled = true
+added_style = 'tertiary'
+deleted_style = 'error'
+format = '[+$added]($added_style)/[-$deleted]($deleted_style) '
+
+# right side / spacing
+[fill]
+symbol = ' '
+
+[cmd_duration]
+min_time = 2000
+min_time_to_notify = 45000
+show_milliseconds = false
+show_notifications = false
+format = '[󱎫 $duration]($style) '
+style = 'muted'
+
+[status]
+disabled = false
+format = '[$symbol$status]($style) '
+symbol = '✘ '
+success_symbol = ''
+not_found_symbol = 'command-not-found '
+not_executable_symbol = 'not-executable '
+sigint_symbol = 'INT '
+signal_symbol = 'signal '
+style = 'error'
+success_style = 'tertiary'
+map_symbol = true
+recognize_signal_code = true
+
+[time]
+disabled = true
+format = '[](fg:secondary)[ ](fg:secondary_text bg:secondary)[$time](fg:foreground bg:secondary)[](fg:secondary) '
+style = 'foreground'
+time_format = '%R'
+utc_time_offset = 'local'
+time_range = '-'
+
+# battery / resources (optional)
+[battery]
+disabled = true
+full_symbol = '󰁹 '
+charging_symbol = '󰂄 '
+discharging_symbol = '󰂃 '
+unknown_symbol = '󰂑 '
+empty_symbol = '󰂎 '
+format = '[$symbol$percentage]($style) '
+
+[[battery.display]]
+threshold = 10
+style = 'error'
+
+[[battery.display]]
+threshold = 25
+style = 'tertiary'
+
+[[battery.display]]
+threshold = 50
+style = 'muted'
+
+[memory_usage]
+disabled = true
+threshold = 75
+format = '[󰍛 ${ram_pct}]($style) '
+style = 'secondary'
+
+[jobs]
+disabled = true
+threshold = 1
+format = '[✦ $number]($style) '
+style = 'tertiary'
+
+# programming languages
+# These modules only show up when Starship detects the relevant project.
+
+[package]
+disabled = true
+format = '[$symbol$version]($style) '
+symbol = '󰏗 '
+style = 'muted'
+
+[nodejs]
+disabled = false
+format = '[$symbol($version )]($style)'
+symbol = ' '
+style = 'tertiary'
+
+[rust]
+disabled = false
+format = '[$symbol($version )]($style)'
+symbol = ' '
+style = 'gold'
+
+[python]
+disabled = false
+format = '[$symbol($version)( $virtualenv )]($style)'
+symbol = ' '
+style = 'accent'
+python_binary = ['python3', 'python']
+pyenv_version_name = false
+pyenv_prefix = 'venv '
+
+[golang]
+disabled = false
+format = '[$symbol($version )]($style)'
+symbol = ' '
+style = 'color1'
+
+[java]
+disabled = false
+format = '[$symbol($version )]($style)'
+symbol = ' '
+style = 'tertiary'
+
+[custom.typescript]
+description = "TypeScript version and project detection"
+command = "tsc --version 2>/dev/null | sed 's/^Version /v/'"
+detect_extensions = ['ts', 'tsx', 'mts', 'cts']
+detect_files = [
+  'tsconfig.json',
+  'tsconfig.*.json',
+  'package.json'
+]
+symbol = '󰛦 '
+format = '[$symbol$output]($style) '
+style = 'secondary'
+
+[bun]
+disabled = true
+format = '[$symbol($version )]($style)'
+symbol = '🥟 '
+style = 'tertiary'
+
+[deno]
+disabled = true
+format = '[$symbol($version )]($style)'
+symbol = '🦕 '
+style = 'secondary'
+
+[php]
+disabled = true
+format = '[$symbol($version )]($style)'
+symbol = ' '
+style = 'secondary'
+
+[ruby]
+disabled = true
+format = '[$symbol($version )]($style)'
+symbol = ' '
+style = 'error'
+
+[elixir]
+disabled = true
+format = '[$symbol($version )]($style)'
+symbol = ' '
+style = 'tertiary'
+
+[elm]
+disabled = true
+format = '[$symbol($version )]($style)'
+symbol = ' '
+style = 'secondary'
+
+[swift]
+disabled = true
+format = '[$symbol($version )]($style)'
+symbol = ' '
+style = 'tertiary'
+
+[kotlin]
+disabled = true
+format = '[$symbol($version )]($style)'
+symbol = ' '
+style = 'secondary'
+
+[scala]
+disabled = true
+format = '[$symbol($version )]($style)'
+symbol = ' '
+style = 'error'
+
+[dotnet]
+disabled = true
+format = '[$symbol($version )(🎯 $tfm )]($style)'
+symbol = '󰪮 '
+style = 'secondary'
+
+[c]
+disabled = true
+format = '[$symbol($version(-$name) )]($style)'
+symbol = ' '
+style = 'secondary'
+
+[cpp]
+disabled = true
+format = '[$symbol($version(-$name) )]($style)'
+symbol = ' '
+style = 'tertiary'
+
+# devops / cloud (optional)
+[docker_context]
+disabled = true
+format = '[$symbol$context]($style) '
+symbol = ' '
+style = 'secondary'
+only_with_files = true
+
+[kubernetes]
+disabled = true
+format = '[$symbol$context(::$namespace)]($style) '
+symbol = '☸ '
+style = 'secondary'
+
+[aws]
+disabled = true
+format = '[$symbol($profile )(\($region\) )]($style)'
+symbol = '󰸏 '
+style = 'tertiary'
+
+[gcloud]
+disabled = true
+format = '[$symbol$account(@$domain)(\($region\))]($style) '
+symbol = '󱇶 '
+style = 'secondary'
+
+[terraform]
+disabled = true
+format = '[$symbol$workspace]($style) '
+symbol = '󱁢 '
+style = 'tertiary'
+
+[conda]
+disabled = true
+format = '[$symbol$environment]($style) '
+symbol = ' '
+style = 'tertiary'
+
+[helm]
+disabled = true
+format = '[$symbol$version]($style) '
+symbol = '⎈ '
+style = 'secondary'
+
+[nix_shell]
+disabled = true
+format = '[$symbol$name]($style) '
+symbol = ' '
+style = 'secondary'
+
+# extra context (optional)
+[env_var.SSH_CONNECTION]
+disabled = true
+format = '[SSH]($style) '
+style = 'tertiary'
+
+[localip]
+disabled = true
+ssh_only = true
+format = '[$localipv4]($style) '
+style = 'muted'

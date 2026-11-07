@@ -1,0 +1,17 @@
+#!/usr/bin/env fish
+
+# Copies the given image into the SDDM theme as login background
+set -l theme /usr/share/sddm/themes/matugen
+
+if test (count $argv) -lt 1; or not test -f "$argv[1]"
+    echo "Usage: sddm-sync /path/to/image"
+    exit 1
+end
+
+if not test -w "$theme/Backgrounds"
+    echo "WARNING: SDDM theme directory is not writable, skipping."
+    exit 0
+end
+
+ffmpeg -loglevel error -y -i "$argv[1]" -frames:v 1 -q:v 2 "$theme/Backgrounds/wall.jpg"
+or cp -f "$argv[1]" "$theme/Backgrounds/wall.jpg"

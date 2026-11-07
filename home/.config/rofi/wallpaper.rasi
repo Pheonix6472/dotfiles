@@ -1,0 +1,24 @@
+@import "menu.rasi"
+
+window { width: 900px; }
+
+listview {
+    columns: 4;
+    lines: 3;
+    flow: horizontal;
+    fixed-height: true;
+    spacing: 12px;
+}
+
+element {
+    orientation: vertical;
+    padding: 10px;
+    spacing: 8px;
+}
+
+element-icon {
+    size: 180px;
+    border-radius: 10px;
+}
+
+element-text { horizontal-align: 0.5; }

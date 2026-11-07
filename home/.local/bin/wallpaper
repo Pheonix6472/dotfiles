@@ -1,0 +1,179 @@
+#!/usr/bin/env fish
+
+# Wallpaper manager for Wayland
+# Usage: wallpaper /path/to/file [r|l]
+
+set -l wallpaper_dir "$HOME/Pictures/Wallpaper"
+set -l temp_dir "$HOME/.cache/wallpaper"
+set -l runtime_dir "$XDG_RUNTIME_DIR"
+
+if test -z "$runtime_dir"
+    set runtime_dir "/tmp"
+end
+
+if test (count $argv) -lt 1; or test (count $argv) -gt 2
+    echo "Usage: wallpaper /path/to/image-or-video [r|l]"
+    exit 1
+end
+
+set -l source "$argv[1]"
+
+if not test -f "$source"
+    echo "ERROR: File not found: $source"
+    exit 1
+end
+
+set source (realpath "$source")
+
+set -l side r
+
+if test (count $argv) -eq 2
+    set side "$argv[2]"
+end
+
+set -l monitor
+
+switch "$side"
+    case r
+        set monitor (monitors main 2>/dev/null)
+    case l
+        set monitor (monitors portrait 2>/dev/null)
+    case '*'
+        echo "ERROR: Monitor must be 'r' or 'l'."
+        exit 1
+end
+
+set -l main_monitor (monitors main 2>/dev/null)
+if test -z "$monitor"
+    set monitor (awww query 2>/dev/null | string match -rg "^: ?([^:]+):" | head -n1)
+end
+if test -z "$main_monitor"
+    set main_monitor "$monitor"
+end
+
+mkdir -p "$wallpaper_dir" "$temp_dir"
+
+if test $status -ne 0
+    echo "ERROR: Cannot create wallpaper directories."
+    exit 1
+end
+
+set -l filename (basename "$source")
+set -l target "$wallpaper_dir/$filename"
+
+if test "$source" != "$target"
+    if not cp -n "$source" "$target"
+        echo "ERROR: Could not copy wallpaper."
+        exit 1
+    end
+end
+
+set target (realpath "$target")
+
+set -l ext (string lower -- (string split -r -m 1 '.' "$filename")[-1])
+set -l is_video 0
+
+switch "$ext"
+    case mp4 mkv webm mov avi m4v
+        set is_video 1
+    case jpg jpeg png webp bmp gif avif jxl
+        set is_video 0
+    case '*'
+        echo "ERROR: Unsupported file type: .$ext"
+        exit 1
+end
+
+if not command -q matugen
+    echo "ERROR: matugen is not installed."
+    exit 1
+end
+
+if test "$is_video" -eq 1
+    if not command -q mpvpaper; or not command -q ffmpeg
+        echo "ERROR: Videos require mpvpaper and ffmpeg."
+        exit 1
+    end
+else
+    if not command -q awww
+        echo "ERROR: awww is not installed."
+        exit 1
+    end
+end
+
+if command -q awww
+    set -l outputs (awww query 2>/dev/null)
+
+    if not string match -q "*$monitor*" -- "$outputs"
+        echo "WARNING: Could not confirm monitor $monitor via awww."
+        echo "Check your output names and wallpaper daemon."
+    end
+end
+
+if test "$monitor" = "$main_monitor"
+    set -l color_source "$target"
+
+    if test "$is_video" -eq 1
+        set color_source "$temp_dir/video-colors.jpg"
+
+        if not ffmpeg -loglevel error -y \
+            -ss 2 -i "$target" -frames:v 1 "$color_source"
+            or not test -s "$color_source"
+
+            if not ffmpeg -loglevel error -y \
+                -i "$target" -frames:v 1 "$color_source"
+                or not test -s "$color_source"
+                echo "ERROR: Could not extract a video frame."
+                exit 1
+            end
+        end
+    end
+
+    echo "Generating colors from: $color_source"
+    sddm-sync "$color_source"
+
+    if not matugen image "$color_source" -m dark
+        echo "ERROR: Matugen failed."
+        exit 1
+    end
+end
+
+set -l pidfile "$runtime_dir/wallpaper-$monitor.pid"
+
+if test -f "$pidfile"
+    set -l old_pid (cat "$pidfile")
+
+    if string match -rq '^[0-9]+$' -- "$old_pid"
+        kill "$old_pid" 2>/dev/null
+    end
+
+    rm -f "$pidfile"
+end
+
+if test "$is_video" -eq 1
+    echo "Setting video wallpaper on $monitor..."
+
+    mpvpaper -o "no-audio --loop-file=inf" "$monitor" "$target" &
+    set -l video_pid $last_pid
+
+    echo "$video_pid" > "$pidfile"
+
+    echo "Video wallpaper started."
+else
+    echo "Setting image wallpaper on $monitor..."
+
+    awww img "$target" \
+        --outputs "$monitor" \
+        --transition-type fade \
+        --transition-duration 1.5
+
+    if test $status -ne 0
+        echo "ERROR: awww failed to set the wallpaper."
+        exit 1
+    end
+
+    echo "Wallpaper applied successfully."
+end
+
+echo "Monitor: $monitor"
+echo "File: $target"
+

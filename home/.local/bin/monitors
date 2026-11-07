@@ -1,0 +1,194 @@
+#!/usr/bin/env python3
+import json
+import os
+import subprocess
+import sys
+
+CFG = os.path.expanduser("~/.config/monitors/layout.json")
+ANGLES = ["normal", "90", "180", "270"]
+
+def connected():
+    r = subprocess.run(["wlr-randr", "--json"], capture_output=True, text=True)
+    if r.returncode != 0:
+        sys.exit("wlr-randr failed: " + r.stderr.strip())
+    return [o for o in json.loads(r.stdout) if o.get("modes")]
+
+def key(o):
+    return "|".join(str(o.get(k) or "") for k in ("make", "model", "serial"))
+
+def current_mode(o):
+    for m in o["modes"]:
+        if m.get("current"):
+            return m
+    return preferred_mode(o)
+
+def preferred_mode(o):
+    for m in o["modes"]:
+        if m.get("preferred"):
+            return m
+    return o["modes"][0]
+
+def pos_x(o):
+    return o.get("position", {}).get("x", 0)
+
+def logical_size(mode, transform, scale):
+    w, h = mode["width"], mode["height"]
+    if transform in ("90", "270", "flipped-90", "flipped-270"):
+        w, h = h, w
+    return round(w / scale), round(h / scale)
+
+def apply(plan):
+    cmd = ["wlr-randr"]
+    x = 0
+    sizes = [logical_size(p["mode"], p["transform"], p["scale"]) for p in plan]
+    max_h = max(h for _, h in sizes)
+    for p, (w, h) in zip(plan, sizes):
+        m = p["mode"]
+        cmd += [
+            "--output", p["name"], "--on",
+            "--mode", "%dx%d@%.3fHz" % (m["width"], m["height"], m["refresh"]),
+            "--transform", p["transform"],
+            "--scale", str(p["scale"]),
+            "--pos", "%d,%d" % (x, max_h - h),
+        ]
+        x += w
+    subprocess.run(cmd, check=True)
+
+def plan_from_current(outs):
+    return [
+        {
+            "name": o["name"],
+            "transform": o.get("transform", "normal"),
+            "scale": o.get("scale", 1.0),
+            "mode": current_mode(o),
+        }
+        for o in sorted(outs, key=pos_x)
+    ]
+
+def pick(outs, ref):
+    if ref.isdigit() and 1 <= int(ref) <= len(outs):
+        return outs[int(ref) - 1]
+    for o in outs:
+        if o["name"].lower() == ref.lower():
+            return o
+    for o in outs:
+        text = ((o.get("make") or "") + " " + (o.get("model") or "")).lower()
+        if ref.lower() in text:
+            return o
+    sys.exit("No such monitor: " + ref)
+
+def cmd_list():
+    for i, o in enumerate(connected(), 1):
+        m = current_mode(o)
+        print("%d  %-10s %s %s  %dx%d@%.0f  transform=%s  scale=%s  pos=%d,%d" % (
+            i, o["name"], o.get("make") or "?", o.get("model") or "?",
+            m["width"], m["height"], m["refresh"],
+            o.get("transform", "normal"), o.get("scale", 1.0),
+            pos_x(o), o.get("position", {}).get("y", 0)))
+
+def cmd_names():
+    for o in connected():
+        print(o["name"])
+
+def is_portrait(o):
+    w, h = logical_size(current_mode(o), o.get("transform", "normal"), o.get("scale", 1.0))
+    return h > w
+
+def cmd_role(role):
+    outs = connected()
+    if role == "portrait":
+        pool = [o for o in outs if is_portrait(o)]
+    else:
+        pool = [o for o in outs if not is_portrait(o)] or outs
+        pool.sort(key=lambda o: (-current_mode(o)["width"], -current_mode(o)["refresh"]))
+    if pool:
+        print(pool[0]["name"])
+
+def cmd_rotate(args):
+    outs = connected()
+    if len(args) < 2:
+        cmd_list()
+        args = [input("Monitor (number or name): "), input("Angle (normal/90/180/270): ")]
+    target = pick(outs, args[0])
+    angle = "normal" if args[1] == "0" else args[1]
+    if angle not in ANGLES:
+        sys.exit("Angle must be one of: " + ", ".join(ANGLES))
+    plan = plan_from_current(outs)
+    for p in plan:
+        if p["name"] == target["name"]:
+            p["transform"] = angle
+    apply(plan)
+    cmd_list()
+    print("Run: monitors save   (to remember this layout)")
+
+def cmd_save():
+    outs = sorted(connected(), key=pos_x)
+    data = {"monitors": []}
+    for o in outs:
+        m = current_mode(o)
+        data["monitors"].append({
+            "key": key(o),
+            "transform": o.get("transform", "normal"),
+            "scale": o.get("scale", 1.0),
+            "width": m["width"],
+            "height": m["height"],
+            "refresh": m["refresh"],
+        })
+    os.makedirs(os.path.dirname(CFG), exist_ok=True)
+    with open(CFG, "w") as f:
+        json.dump(data, f, indent=2)
+    print("Saved layout for %d monitor(s) to %s" % (len(outs), CFG))
+
+def cmd_auto():
+    outs = connected()
+    saved = []
+    if os.path.exists(CFG):
+        with open(CFG) as f:
+            saved = json.load(f).get("monitors", [])
+    used = set()
+    entries = []
+    for o in outs:
+        hit = None
+        for i, s in enumerate(saved):
+            if i not in used and s["key"] == key(o):
+                hit = i
+                used.add(i)
+                break
+        if hit is None:
+            entries.append((1000 + len(entries), {
+                "name": o["name"], "transform": "normal",
+                "scale": 1.0, "mode": preferred_mode(o)}))
+            continue
+        s = saved[hit]
+        mode = preferred_mode(o)
+        for m in o["modes"]:
+            same = (m["width"], m["height"]) == (s["width"], s["height"])
+            if same and abs(m["refresh"] - s["refresh"]) < 0.5:
+                mode = m
+                break
+        entries.append((hit, {
+            "name": o["name"], "transform": s["transform"],
+            "scale": s["scale"], "mode": mode}))
+    entries.sort(key=lambda e: e[0])
+    apply([e[1] for e in entries])
+    cmd_list()
+
+def main():
+    args = sys.argv[1:]
+    action = args[0] if args else "list"
+    if action == "list":
+        cmd_list()
+    elif action == "names":
+        cmd_names()
+    elif action in ("main", "portrait"):
+        cmd_role(action)
+    elif action == "rotate":
+        cmd_rotate(args[1:])
+    elif action == "save":
+        cmd_save()
+    elif action == "auto":
+        cmd_auto()
+    else:
+        print("Usage: monitors [list|names|main|portrait|auto|rotate [MON ANGLE]|save]")
+
+main()
