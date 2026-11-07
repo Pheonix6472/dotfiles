@@ -8,11 +8,11 @@ post_hook = "pkill -USR1 nvim || true"
 
 [templates.zen-userchrome]
 input_path = './templates/zen-userchrome.css'
-output_path = '~/.config/zen/sp3qvr5x.Default (release)/chrome/zen-userChrome.css'
+output_path = '~/.config/zen/[profile-name]/chrome/zen-userChrome.css'
 
 [templates.zen-usercontent]
 input_path = './templates/zen-usercontent.css'
-output_path = '~/.config/zen/sp3qvr5x.Default (release)/chrome/zen-userContent.css'
+output_path = '~/.config/zen/[profile-name]/chrome/zen-userContent.css'
 
 [templates.rofi]
 input_path = '~/.config/matugen/templates/rofi.rasi'
@@ -39,8 +39,6 @@ output_path = '~/.config/fastfetch/config.jsonc'
 [templates.sddm]
 input_path = "~/.config/matugen/templates/sddm-colors.qml"
 output_path = "/usr/share/sddm/themes/matugen/Colors.qml"
-
-
 
 [templates.swaylock]
 input_path = "~/.config/matugen/templates/swaylock-config"
