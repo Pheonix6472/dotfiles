@@ -27,13 +27,21 @@ Run `wallpaper /path/to/image` once to generate the colors.
 
 ## Notes
 
-- Monitor names and positions in `home/.config/mango/config.conf` and `home/.local/bin/monitors` match my setup, adjust them first.
-- `wallpaper` sets images through awww and videos through mpvpaper.
-- `lock` runs swaylock.
-- The zen profile path in the matugen config is detected by the installer.
-- Spicetify and the Sleek theme are not included.
-- `packages/optional.txt` lists tools that only single menu entries use.
-- Generated files (colors, starship.toml, dunstrc and so on) are ignored by git.
+- Monitor names and positions in `home/.config/mango/config.conf` and `home/.local/bin/monitors` match my setup. Adjust them before installation.
+-  `wallpaper` sets static images through `awww` and videos through `mpvpaper`.
+- `lock` runs `swaylock`.
+- The Zen profile path in the Matugen config is automatically detected by the installer.
+- Spicetify and the Sleek theme are not included and must be installed separately.
+- `packages/optional.txt` lists tools required only by individual menu entries or scripts.
+- Generated files (colors, `starship.toml`, `dunstrc`, etc.) are ignored by Git.
+- NordVPN is optional. VPN-related menu entries require the NordVPN CLI; other Rofi functionality works independently.
+- Nerd Fonts are required for the intended appearance of several components. Install the fonts referenced by the configurations.
+- Matugen is responsible for generating the color scheme. Some themes may not look correct until the initial color generation has completed.
+- MangoWM configuration is tailored to my setup. Different versions may have different configuration syntax or feature support.
+- NVIDIA-specific settings may need adjustment on systems using different GPUs or drivers.
+- The `--system` installer option makes system-wide changes, including SDDM configuration. Review these changes before running it.
+- Existing configuration files and symlinks may cause installation conflicts. Back up important configurations before installation.
+- Some external applications and services require separate setup and are not fully configured by this repository.
 
 ## Credits
 
