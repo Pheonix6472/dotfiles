@@ -15,7 +15,7 @@ Arch Linux desktop around the Mango compositor. Colors for most programs are gen
 ## Install
 
 ```sh
-git clone (https://github.com/Pheonix6472/dotfiles) ~/dotfiles
+git clone https://github.com/Pheonix6472/dotfiles ~/dotfiles
 cd ~/dotfiles
 ./install.sh --packages --system
 ```
